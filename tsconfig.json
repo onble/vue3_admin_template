@@ -7,7 +7,7 @@
         "skipLibCheck": true,
 
         /* Bundler mode */
-        "moduleResolution": "bundler",
+        "moduleResolution": "node",
         "allowImportingTsExtensions": true,
         "resolveJsonModule": true,
         "isolatedModules": true,
@@ -16,10 +16,23 @@
 
         /* Linting */
         "strict": true,
-        "noUnusedLocals": true,
+        "noUnusedLocals": false,
         "noUnusedParameters": true,
-        "noFallthroughCasesInSwitch": true
+        "noFallthroughCasesInSwitch": true,
+
+        // 相对路径
+        "baseUrl": "./", // 解析非相对模块的基地地址，默认为当前路径
+        "paths": {
+            // 路径映射。相对于baseUrl
+            "@/*": ["src/*"]
+        }
     },
-    "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "src/**/*.vue",
+        "vue.d.ts",
+        "src/**/*.d.ts"
+    ],
     "references": [{ "path": "./tsconfig.node.json" }]
 }
