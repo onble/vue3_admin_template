@@ -15,5 +15,14 @@ app.use(ElementPlus,{
 // console.log(import.meta.env)
 // svg插件需要配置代码
 import 'virtual:svg-icons-register'
+
+// import SvgIcon from '@/components/SvgIcon/index.vue'
+// app.component('SvgIcon',SvgIcon);
+
+// 引入自定义插件对象：注册整个项目全局组件
+import gloalComponent from '@/components';
+// console.log(gloalComponent)
+// 安装自定义插件
+app.use(gloalComponent)
 // 将应用挂在到挂载点上
 app.mount('#app')

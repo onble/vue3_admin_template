@@ -12,16 +12,19 @@
             :total="400"
             layout="total,size,prev,pager,next,jumper"
         ></el-pagination>
-        <Test></Test>
-        <SvgTest></SvgTest>
+        <!-- <Test></Test> -->
+        <!-- <SvgTest></SvgTest> -->
+        <SvgIcon name="home" color="pink" width="100px" height="100px"></SvgIcon>
+        <Pagination></Pagination>
     </div>
 </template>
 
 <script setup lang="ts">
 // 引入图标组件
 import { Plus, Edit, Delete } from '@element-plus/icons-vue'
-import Test from '@/components/Test.vue'
-import SvgTest from '@/components/SvgTest.vue'
+// import Test from '@/components/Test.vue'
+// import SvgTest from '@/components/SvgTest.vue'
+// import SvgIcon from '@/components/SvgIcon/index.vue'
 </script>
 
 <style scoped></style>
