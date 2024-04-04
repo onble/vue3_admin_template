@@ -1,30 +1,34 @@
 <template>
     <div>
-        <el-button type="primary" size="default" :icon="Plus">
-            主要按钮
-        </el-button>
-        <el-button type="success" size="small" :icon="Edit">编辑按钮</el-button>
-        <el-button type="danger" size="default" :icon="Delete">
-            删除按钮
-        </el-button>
-        <el-pagination
-            :page-sizes="[100, 200, 300, 400]"
-            :total="400"
-            layout="total,size,prev,pager,next,jumper"
-        ></el-pagination>
-        <!-- <Test></Test> -->
-        <!-- <SvgTest></SvgTest> -->
-        <SvgIcon name="home" color="pink" width="100px" height="100px"></SvgIcon>
-        <Pagination></Pagination>
+        <h1>测试代码</h1>
     </div>
 </template>
 
 <script setup lang="ts">
-// 引入图标组件
-import { Plus, Edit, Delete } from '@element-plus/icons-vue'
-// import Test from '@/components/Test.vue'
-// import SvgTest from '@/components/SvgTest.vue'
-// import SvgIcon from '@/components/SvgIcon/index.vue'
+import request from '@/utils/request'
+import { onMounted } from 'vue'
+import { reqLogin } from './api/user'
+// 当组件挂在完毕测试发一个请求
+onMounted(() => {
+    /* request({
+        url: '/user/login',
+        method: 'post',
+        data: {
+            username: 'admin',
+            password: '111111',
+        },
+    }).then((res) => {
+        console.log(res)
+    }) */
+
+    reqLogin({ username: 'admin', password: '111111' })
+})
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+div {
+    h1 {
+        color: $color;
+    }
+}
+</style>
