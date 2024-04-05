@@ -4,16 +4,21 @@
             <el-row>
                 <el-col :span="12" :xs="0"></el-col>
                 <el-col :span="12" :xs="24">
-                    <el-form class="login_form">
+                    <el-form
+                        class="login_form"
+                        :model="loginForm"
+                        :rules="rules"
+                        ref="loginForms"
+                    >
                         <h1>Hello</h1>
                         <h2>欢迎来到硅谷甄选</h2>
-                        <el-form-item>
+                        <el-form-item prop="username">
                             <el-input
                                 :prefix-icon="User"
                                 v-model="loginForm.username"
                             ></el-input>
                         </el-form-item>
-                        <el-form-item>
+                        <el-form-item prop="password">
                             <el-input
                                 :prefix-icon="Lock"
                                 type="password"
@@ -46,17 +51,23 @@ import { reactive, ref } from 'vue'
 import useUserStore from '@/store/modules/user'
 import { useRouter } from 'vue-router'
 import { ElNotification } from 'element-plus'
+// 引入获取当前时间的函数
+import { getTime } from '@/utils/time'
 
 // 获取路由器
 let $router = useRouter()
 let useStore = useUserStore()
 // 收集账号与密码的数据
 let loginForm = reactive({ username: 'admin', password: '111111' })
+let loginForms = ref()
 // 定义变量控制按钮加载效果
 let loading = ref(false)
 
 // 登录按钮回调
 const login = async () => {
+    // 保证全部表单校验通过再发请求
+    // console.log(loginForms.value)
+    await loginForms.value.validate()
     // 加载效果：开始加载
     loading.value = true
     // 点击登录按钮以后干什么？
@@ -72,7 +83,8 @@ const login = async () => {
         // 登录成功提示信息
         ElNotification({
             type: 'success',
-            message: '登录成功',
+            message: '欢迎回来',
+            title: `HI,${getTime()}好`,
         })
     } catch (error) {
         // 登录失败的提示信息
@@ -81,8 +93,30 @@ const login = async () => {
             message: (error as Error).message,
         })
     } finally {
-        loading = false
+        loading.value = false
     }
+}
+
+// 定义表单校验需要配置对象
+const rules = {
+    username: [
+        {
+            required: true,
+            min: 6,
+            max: 10,
+            message: '账号长度至少六位',
+            trigger: 'change',
+        },
+    ],
+    password: [
+        {
+            required: true,
+            min: 6,
+            max: 15,
+            message: '密码长度至少6位',
+            trigger: 'change',
+        },
+    ],
 }
 </script>
 
