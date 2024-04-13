@@ -7,13 +7,15 @@ import type { loginForm, loginResponseData } from '@/api/user/type';
 import type { UserState } from './types/type';
 // 引入操作本地存储的工具方法
 import { SET_TOKEN, GET_TOKEN } from '@/utils/token';
+// 引入路由（常量路由）
+import { constantRoute } from '@/router/routes';
 // 创建用户小仓库
-let useUserStore = defineStore('User', {
+const useUserStore = defineStore('User', {
     // 小仓库存储数据地方
-    store: (): UserState => {
+    state: (): UserState => {
         return {
             token: GET_TOKEN(), // 用户唯一标识token
-            menuRiutes: constantRoute, //仓库存储生成菜单需要数组(路由)
+            menuRoutes: constantRoute, //仓库存储生成菜单需要数组(路由)
         };
     },
     // 异步|逻辑的地方
@@ -21,8 +23,7 @@ let useUserStore = defineStore('User', {
         // 用户登录的方法
         async userLogin(data: loginForm) {
             // 用户登录的方法
-            let result: loginResponseData = await reqLogin(data);
-            // 登录请求：成功200->token
+            const result: loginResponseData = await reqLogin(data);
             // 登录请求：失败201->登录失败错误的信息
             if (result.code == 200) {
                 // pinia仓库存储一下token

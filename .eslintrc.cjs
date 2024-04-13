@@ -56,4 +56,4 @@ module.exports = {
         // 我的设置
         semi: ['error', 'always'],
     },
-}
+};

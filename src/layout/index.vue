@@ -7,17 +7,7 @@
             <el-scrollbar class="scrollbar">
                 <!-- 菜单组件 -->
                 <el-menu background-color="#001529" text-color="white">
-                    <el-menu-item index="1">首页</el-menu-item>
-                    <el-menu-item index="2">数据大屏</el-menu-item>
-                    <!-- 折叠菜单 -->
-                    <el-sub-menu index="3">
-                        <template #title>
-                            <span>权限管理</span>
-                        </template>
-                        <el-menu-item index="2-1">用户管理</el-menu-item>
-                        <el-menu-item index="2-2">角色管理</el-menu-item>
-                        <el-menu-item index="2-3">菜单管理</el-menu-item>
-                    </el-sub-menu>
+                    <Menu :menuList="userStore.menuRoutes"></Menu>
                 </el-menu>
             </el-scrollbar>
         </div>
@@ -31,6 +21,13 @@
 <script setup lang="ts">
 // 引入左侧菜单logo子组件
 import Logo from './logo/index.vue';
+// 引入菜单组件
+import Menu from './menu/index.vue';
+
+// 获取用户相关的小仓库
+import useUserStore from '@/store/modules/user';
+let userStore = useUserStore();
+console.log(userStore);
 </script>
 
 <style scoped lang="scss">
@@ -47,6 +44,11 @@ import Logo from './logo/index.vue';
         .scrollbar {
             width: 100%;
             height: calc(100vh - $base-menu-logo-height);
+
+            // 隐藏默认的右边线
+            .el-menu {
+                border-right: none;
+            }
         }
     }
 
