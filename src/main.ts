@@ -4,7 +4,6 @@ import App from './App.vue'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 // 配置element-plus国际化 下面的注释帮助ts进行忽略报错
-//@ts-ignore
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 // 引入模板的全局的样式
 import '@/styles/index.scss'
