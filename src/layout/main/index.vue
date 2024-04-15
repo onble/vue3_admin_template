@@ -10,6 +10,12 @@
 
 <script setup lang="ts"></script>
 
+<script lang="ts">
+export default {
+    name: 'Mian',
+};
+</script>
+
 <style scoped>
 .fade-enter-from {
     opacity: 0;
