@@ -218,10 +218,7 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
     }
 };
 // 图片上传成功钩子
-const handleAvatarSuccess: UploadProps['onSuccess'] = (
-    response,
-    uploadFile,
-) => {
+const handleAvatarSuccess: UploadProps['onSuccess'] = (response) => {
     // response:即为当前这次上传图片post请求服务器返回的数据
     // 收集上传图片的地址，添加一个新的品牌的时候带给服务器
     trademarkParams.logoUrl = response.data;
