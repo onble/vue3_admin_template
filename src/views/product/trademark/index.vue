@@ -125,7 +125,10 @@
 <script setup lang="ts">
 // 引入组合式API函数ref
 import { ref, onMounted, reactive } from 'vue';
-import { reqHasTardemark } from '@/api/product/trademark';
+import {
+    reqHasTardemark,
+    reqAddOrUpdateTrademark,
+} from '@/api/product/trademark';
 import type {
     Records,
     TradeMark,
@@ -176,6 +179,9 @@ const sizeChange = (size) => {
 const addTrademark = () => {
     // 对话框显示
     dialogFormVisible.value = true;
+    // 收集的数据清空
+    trademarkParams.tmName = '';
+    trademarkParams.logoUrl = '';
 };
 // 修改已有品牌的是按钮的回调
 const updateTrademark = () => {
@@ -187,9 +193,29 @@ const cancel = () => {
     // 对话框隐藏
     dialogFormVisible.value = false;
 };
-const confirm = () => {
-    // 对话框隐藏
-    dialogFormVisible.value = false;
+const confirm = async () => {
+    const result: any = await reqAddOrUpdateTrademark(trademarkParams);
+    // 添加品牌成功
+    console.log(result);
+    if (result.code == 200) {
+        // 关闭对话框
+        dialogFormVisible.value = false;
+        // 弹出提示信息
+        ElMessage({
+            type: 'success',
+            message: '添加品牌成功',
+        });
+        // 再次发请求获取已有全部的品牌数据
+        getHasTrademark();
+    } else {
+        // 添加品牌失败
+        ElMessage({
+            type: 'error',
+            message: '添加品牌失败',
+        });
+        // 关闭对话框
+        dialogFormVisible.value = false;
+    }
 };
 // 上传图片逐渐->上传图片之前触发的钩子函数
 const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
