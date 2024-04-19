@@ -6,6 +6,7 @@
                     v-model="categoryStore.c1Id"
                     style="width: 240px"
                     @change="handler"
+                    :disabled="scene == 0 ? false : true"
                 >
                     <!-- option:label即为显示文字 value属性即为select下拉菜单收集的数据 -->
                     <el-option
@@ -21,6 +22,7 @@
                     style="width: 240px"
                     v-model="categoryStore.c2Id"
                     @change="handler1"
+                    :disabled="scene == 0 ? false : true"
                 >
                     <el-option
                         v-for="c2 in categoryStore.c2Arr"
@@ -31,7 +33,11 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="三级分类">
-                <el-select style="width: 240px" v-model="categoryStore.c3Id">
+                <el-select
+                    style="width: 240px"
+                    v-model="categoryStore.c3Id"
+                    :disabled="scene == 0 ? false : true"
+                >
                     <el-option
                         v-for="c3 in categoryStore.c3Arr"
                         :key="c3.id"
@@ -47,7 +53,7 @@
 
 <script setup lang="ts">
 // 引入组件挂载完毕方法
-import { onMounted } from 'vue';
+import { onMounted, defineProps } from 'vue';
 // 引入分类相关的仓库
 import useCategoryStore from '@/store/modules/category';
 let categoryStore = useCategoryStore();
@@ -77,6 +83,9 @@ const handler1 = () => {
     categoryStore.c3Id = '';
     categoryStore.getC3();
 };
+
+// 接收父组件传递过来scene
+defineProps(['scene']);
 </script>
 
 <style scoped></style>
