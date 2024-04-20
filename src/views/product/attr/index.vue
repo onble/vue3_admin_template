@@ -92,18 +92,30 @@
                         <!-- row:即为当前属性值对象 -->
                         <template #="{ row, $index }">
                             <el-input
+                                :ref="(vc: any) => (inputArr[$index] = vc)"
                                 v-if="row.flag"
                                 @blur="toLook(row, $index)"
                                 size="small"
                                 v-model="row.valueName"
                                 placeholder="请你输入属性值名称"
                             ></el-input>
-                            <div v-else @click="toEdit(row)">
+                            <div v-else @click="toEdit(row, $index)">
                                 {{ row.valueName }}
                             </div>
                         </template>
                     </el-table-column>
-                    <el-table-column label="属性值操作"></el-table-column>
+                    <el-table-column label="属性值操作">
+                        <template #="{ row, $index }">
+                            <el-button
+                                type="primary"
+                                size="small"
+                                icon="Delete"
+                                @click="
+                                    attrParams.attrValueList.splice(index, 1)
+                                "
+                            ></el-button>
+                        </template>
+                    </el-table-column>
                 </el-table>
                 <el-button
                     type="primary"
@@ -132,6 +144,7 @@ import { reqAddOrUpdateAttr, reqAttr } from '@/api/product/attr';
 import useCategoryStore from '@/store/modules/category';
 import type { AttrResponseData, AttrValue } from '@/api/product/attr/type';
 import { ElMessage } from 'element-plus';
+import { nextTick } from 'vue';
 const categoryStore = useCategoryStore();
 // 存储已有的属性与属性值
 let attrArr = ref<Attr[]>([]);
@@ -144,6 +157,8 @@ let attrParams = reactive({
     categoryId: '', // 三级分类的ID
     categoryLevel: 3, // 代表的是三级分类
 });
+// 准备一个数组：将来存储对应的组件实例el-input
+let inputArr = ref<any>([]);
 // 监听仓库三级分类ID变化
 watch(
     () => categoryStore.c3Id,
@@ -194,6 +209,10 @@ const addAttrValue = () => {
     attrParams.attrValueList.push({
         valueName: '',
         flag: true, // 控制每一个属性值编辑模式与展示模式的切换
+    });
+    // 获取最后el-input组件聚焦
+    nextTick(() => {
+        inputArr.value[attrParams.attrValueList.length - 1].focus();
     });
 };
 // 保存按钮的回调
@@ -253,9 +272,13 @@ const toLook = (row: AttrValue, $index: number) => {
     row.flag = false;
 };
 // 属性值div点击事件
-const toEdit = (row: AttrValue) => {
+const toEdit = (row: AttrValue, $index: number) => {
     // 相应的属性值对象flag:变为true,展示input
     row.flag = true;
+    // nextTick:响应式数据发生变化，获取更新的DOM(组件实例)
+    nextTick(() => {
+        inputArr.value[$index].focus();
+    });
 };
 </script>
 
