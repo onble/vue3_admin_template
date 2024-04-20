@@ -47,11 +47,19 @@
                                 icon="Edit"
                                 @click="updateAttr(row)"
                             ></el-button>
-                            <el-button
-                                type="primary"
-                                size="small"
-                                icon="Delete"
-                            ></el-button>
+                            <el-popconfirm
+                                :title="`你确定删除${row.attrName}?`"
+                                width="200px"
+                                @confirm="deleteAttr(row.id)"
+                            >
+                                <template #reference>
+                                    <el-button
+                                        type="primary"
+                                        size="small"
+                                        icon="Delete"
+                                    ></el-button>
+                                </template>
+                            </el-popconfirm>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -138,9 +146,9 @@
 
 <script setup lang="ts">
 // 组合式API函数watch
-import { watch, ref, reactive } from 'vue';
+import { watch, ref, reactive, onBeforeUnmount, nextTick } from 'vue';
 // 引入获取已有属性与属性值接口
-import { reqAddOrUpdateAttr, reqAttr } from '@/api/product/attr';
+import { reqAddOrUpdateAttr, reqAttr, reqRemoveAttr } from '@/api/product/attr';
 // 获取分类的仓库
 import useCategoryStore from '@/store/modules/category';
 import type {
@@ -149,7 +157,6 @@ import type {
     AttrValue,
 } from '@/api/product/attr/type';
 import { ElMessage } from 'element-plus';
-import { nextTick } from 'vue';
 const categoryStore = useCategoryStore();
 // 存储已有的属性与属性值
 let attrArr = ref<Attr[]>([]);
@@ -288,6 +295,30 @@ const toEdit = (row: AttrValue, $index: number) => {
         inputArr.value[$index].focus();
     });
 };
+// 删除某一个已有的属性方法回调
+const deleteAttr = async (attrId: number) => {
+    // 发相应的删除已有的属性的请求
+    const result: any = await reqRemoveAttr(attrId);
+    if (result.code == 200) {
+        // 删除成功
+        ElMessage({
+            type: 'success',
+            message: '删除成功',
+        });
+        // 获取一次已有的属性与属性值
+        getAttr();
+    } else {
+        ElMessage({
+            type: 'error',
+            message: '删除失败',
+        });
+    }
+};
+// 路由组件销毁的时候，把仓库分类相关的数据清空
+onBeforeUnmount(() => {
+    // 清空分类仓库的数据
+    categoryStore.$reset();
+});
 </script>
 
 <style scoped></style>
