@@ -39,12 +39,13 @@
                     </el-table-column>
                     <el-table-column label="操作" width="120px">
                         <!-- row:已有的属性对象 -->
-                        <template #="row">
+                        <template #="{ row, $index }">
+                            <!-- 修改已有属性的按钮 -->
                             <el-button
                                 type="primary"
                                 size="small"
                                 icon="Edit"
-                                @click="updateAttr"
+                                @click="updateAttr(row)"
                             ></el-button>
                             <el-button
                                 type="primary"
@@ -142,7 +143,11 @@ import { watch, ref, reactive } from 'vue';
 import { reqAddOrUpdateAttr, reqAttr } from '@/api/product/attr';
 // 获取分类的仓库
 import useCategoryStore from '@/store/modules/category';
-import type { AttrResponseData, AttrValue } from '@/api/product/attr/type';
+import type {
+    Attr,
+    AttrResponseData,
+    AttrValue,
+} from '@/api/product/attr/type';
 import { ElMessage } from 'element-plus';
 import { nextTick } from 'vue';
 const categoryStore = useCategoryStore();
@@ -195,9 +200,12 @@ const addAttr = () => {
     attrParams.categoryId = categoryStore.c3Id;
 };
 // table表格修改已有属性按钮的回调
-const updateAttr = () => {
+const updateAttr = (row: Attr) => {
     // 切换为添加与修改属性的结构
     scene.value = 1;
+    // 将已有的属性对象赋值给attrParams对象即可
+    // ES6->Object.assign进行对象的合并
+    Object.assign(attrParams, JSON.parse(JSON.stringify(row)));
 };
 // 取消按钮的回调
 const cancel = () => {
