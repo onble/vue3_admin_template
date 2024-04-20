@@ -25,6 +25,7 @@ export interface AttrValue {
     id?: number;
     valueName: string;
     attrId?: number;
+    flag?: boolean; // 控制每一个属性值编辑模式与展示模式的切换
 }
 // 存储每一个属性值的数组类型
 export type AttrValueList = AttrValue[];
