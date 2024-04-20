@@ -35,7 +35,7 @@
                                 title="添加SKU"
                             ></el-button>
                             <el-button
-                                @click="updateSpu"
+                                @click="updateSpu(row)"
                                 type="primary"
                                 size="small"
                                 icon="Edit"
@@ -69,7 +69,11 @@
                 ></el-pagination>
             </div>
             <!-- 添加SPU|修改SPU子组件 -->
-            <SpuForm v-show="scene == 1" @changeScene="changeScene"></SpuForm>
+            <SpuForm
+                ref="spu"
+                v-show="scene == 1"
+                @changeScene="changeScene"
+            ></SpuForm>
             <!-- 添加SKU的子组件 -->
             <SkuForm v-show="scene == 2"></SkuForm>
         </el-card>
@@ -83,7 +87,7 @@ import { ref, watch } from 'vue';
 // 引入分类的仓库
 import useCategoryStore from '@/store/modules/category';
 import { reqHasSpu } from '@/api/product/spu';
-import { HasSpuResponseData, Records } from '@/api/product/spu/type';
+import { HasSpuResponseData, Records, SpuDate } from '@/api/product/spu/type';
 let categoryStore = useCategoryStore();
 // 场景的数据
 // 0:显示已有SPU 1:添加或者修改已有SPU 2:添加SKU的结构
@@ -96,6 +100,8 @@ let pageSize = ref<number>(3);
 let records = ref<Records>([]);
 // 存储已有SPU总个数
 let total = ref<number>(0);
+// 获取子组件实例SpuForm
+let spu = ref<any>();
 
 // 监听三级分类ID变化
 watch(
@@ -134,9 +140,11 @@ const changeScene = (num: number) => {
     scene.value = num;
 };
 // 修改已有的SPU的按钮的回调
-const updateSpu = () => {
+const updateSpu = (row: SpuDate) => {
     // 切换为场景1：添加与修改已有SPU结构->SpuForm
     scene.value = 1;
+    // 调用子组件实例方法获取完整已有的SPU的数据
+    spu.value.initHasSpuData(row);
 };
 </script>
 
