@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/valid-attribute-name -->
 <template>
     <el-form label-width="120px">
         <el-form-item label="SPU名称">
@@ -61,7 +62,7 @@
                 添加属性值
             </el-button>
             <!-- table展示销售属性与属性值的地方 -->
-            <el-table border style="margin: 10px 0px">
+            <el-table border style="margin: 10px 0px" :data="saleAttr">
                 <el-table-column
                     label="序号"
                     type="index"
@@ -69,11 +70,39 @@
                     width="80px"
                 />
                 <el-table-column
+                    prop="saleAttrName"
                     label="销售属性名字"
                     width="120px"
                 ></el-table-column>
-                <el-table-column label="销售属性值"></el-table-column>
-                <el-table-column label="操作" width="120px"></el-table-column>
+                <el-table-column label="销售属性值">
+                    <!-- row:即为当前SPU已有的销售属性对象 -->
+                    <template #="{ row, $index }">
+                        <el-tag
+                            v-for="item in row.spuSaleAttrValueList"
+                            :key="item.id"
+                            class="mx-1"
+                            closable
+                            style="margin: 0px 5px"
+                        >
+                            {{ item.saleAttrValueName }}
+                        </el-tag>
+                        <el-button
+                            type="primary"
+                            size="small"
+                            icon="Plus"
+                        ></el-button>
+                    </template>
+                </el-table-column>
+                <el-table-column label="操作" width="120px">
+                    <template #="{ row, $index }">
+                        <el-button
+                            type="primary"
+                            size="small"
+                            icon="Delete"
+                            @click="saleAttr.splice($index, 1)"
+                        ></el-button>
+                    </template>
+                </el-table-column>
             </el-table>
         </el-form-item>
         <el-form-item>
