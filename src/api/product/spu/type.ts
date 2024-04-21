@@ -35,7 +35,7 @@ export interface Trademark {
     logoUrl: string;
 }
 // 品牌接口返回的数据ts类型
-export interface AllTradeMark extends ResponseData {
+export interface AllTrademark extends ResponseData {
     data: Trademark[];
 }
 

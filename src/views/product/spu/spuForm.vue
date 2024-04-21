@@ -1,17 +1,27 @@
 <template>
     <el-form label-width="120px">
         <el-form-item label="SPU名称">
-            <el-input placeholder="请你输入SPU名称"></el-input>
+            <el-input
+                placeholder="请你输入SPU名称"
+                v-model="SpuParams.spuName"
+            ></el-input>
         </el-form-item>
         <el-form-item label="SPU品牌">
-            <el-select style="width: 240px">
-                <el-option lable="华为"></el-option>
-                <el-option lable="oppo"></el-option>
-                <el-option lable="vivo"></el-option>
+            <el-select style="width: 240px" v-model="SpuParams.tmId">
+                <el-option
+                    v-for="item in AllTradeMarks"
+                    :key="item.id"
+                    :label="item.tmName"
+                    :value="item.id"
+                ></el-option>
             </el-select>
         </el-form-item>
         <el-form-item lable="SPU描述">
-            <el-input type="textarea" palceholder="请你输入SPU描述"></el-input>
+            <el-input
+                type="textarea"
+                palceholder="请你输入SPU描述"
+                v-model="SpuParams.description"
+            ></el-input>
         </el-form-item>
         <el-form-item label="SPU图标">
             <el-upload
@@ -76,7 +86,7 @@ import {
     reqSpuImageList,
 } from '@/api/product/spu';
 import {
-    AllTradeMark,
+    AllTrademark,
     HasSaleAttr,
     HasSaleAttrResponseData,
     SaleAttr,
@@ -98,14 +108,25 @@ let imgList = ref<SpuImg[]>([]);
 let saleAttr = ref<SaleAttr[]>([]);
 // 全部销售属性
 let allSaleAttr = ref<HasSaleAttr>([]);
+// 存储已有的SPU对象
+let SpuParams = ref<SpuDate>({
+    category3Id: '', // 收集三级分类的ID
+    spuName: '', // SPU的名字
+    description: '', // SPU的描述
+    tmId: '', // 品牌的ID
+    spuImageList: [],
+    spuSaleAttrList: [],
+});
 const cancel = () => {
     $emit('changeScene', 0);
 };
 // 子组件书写一个方法
 const initHasSpuData = async (spu: SpuDate) => {
+    // 存储已有的SPU对象，将来在模板中展示
+    SpuParams.value = spu;
     // spu：即为父组件传递过来的已有的SPU对象[不完整]
     // 获取全部品牌的数据
-    const result: AllTradeMark = await reqAllTradeMark();
+    const result: AllTrademark = await reqAllTradeMark();
     // 获取某一个品牌下全部售卖商品的图片
     const result1: SpuHasImg = await reqSpuImageList(spu.id as number);
     // 获取已有的SPu销售属性的数据
