@@ -52,8 +52,8 @@ export const reqAllSaleAttr = () =>
 export const reqAddOrUpdateSpu = (data: SpuDate) => {
     // 如果SPU对象拥有ID，更新已有的SPU
     if (data.id) {
-        return request.post<any, any>(API.ADDSPU_URL), data;
-    } else {
         return request.post<any, any>(API.UPDATESPU_URL, data);
+    } else {
+        return request.post<any, any>(API.ADDSPU_URL, data);
     }
 };

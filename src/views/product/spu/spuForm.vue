@@ -165,6 +165,7 @@ import {
     SpuImg,
     Trademark,
 } from '@/api/product/spu/type';
+import { Flag } from '@element-plus/icons-vue/dist/types';
 import { ElMessage } from 'element-plus';
 import { computed } from 'vue';
 import { ref } from 'vue';
@@ -195,7 +196,7 @@ let dialogImageUrl = ref<string>('');
 // 将来收集还未选择的销售属性的ID与属性值的名字
 let saleAttrIdAndValueName = ref<string>('');
 const cancel = () => {
-    $emit('changeScene', 0);
+    $emit('changeScene', { Flag: 0, params: 'update' });
 };
 // 子组件书写一个方法
 const initHasSpuData = async (spu: SpuDate) => {
@@ -341,12 +342,17 @@ const save = async () => {
     // console.log(SpuParams.value.spuImageList);
     // 2:整理销售属性的数据
     SpuParams.value.spuSaleAttrList = saleAttr.value;
-    console.log(SpuParams);
+    // console.log(SpuParams);
     const result = await reqAddOrUpdateSpu(SpuParams.value);
     if (result.code == 200) {
         ElMessage({
             type: 'success',
             message: SpuParams.value.id ? '更新成功' : '添加成功',
+        });
+        // 通知父组件切换场景为0
+        $emit('changeScene', {
+            flag: 0,
+            params: SpuParams.value.id ? 'update' : 'add',
         });
     } else {
         ElMessage({
@@ -358,8 +364,33 @@ const save = async () => {
     // 成功
     // 失败
 };
+// 添加一个新的SPU初始化请求方法
+const initAddSpu = async (c3Id: number | string) => {
+    // 情况数据
+    Object.assign(SpuParams.value, {
+        category3Id: '', // 收集三级分类的ID
+        spuName: '', // SPU的名字
+        description: '', // SPU的描述
+        tmId: '', // 品牌的ID
+        spuImageList: [],
+        spuSaleAttrList: [],
+    });
+    // 清空 照片
+    imgList.value = [];
+    // 清空销售属性
+    saleAttr.value = [];
+    saleAttrIdAndValueName.value = '';
+    // 存储三级分类的ID
+    SpuParams.value.category3Id = c3Id;
+    // 获取全部品牌的数据
+    const result: AllTrademark = await reqAllTradeMark();
+    const result1: HasSaleAttrResponseData = await reqAllSaleAttr();
+    // 存储数据
+    AllTradeMarks.value = result.data;
+    allSaleAttr.value = result1.data;
+};
 // 对外暴露
-defineExpose({ initHasSpuData });
+defineExpose({ initHasSpuData, initAddSpu });
 </script>
 
 <style scoped></style>
