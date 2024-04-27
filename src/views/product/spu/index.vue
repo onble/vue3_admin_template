@@ -76,7 +76,7 @@
                 @changeScene="changeScene"
             ></SpuForm>
             <!-- 添加SKU的子组件 -->
-            <SkuForm v-show="scene == 2"></SkuForm>
+            <SkuForm v-show="scene == 2" @changeScene="changeScene"></SkuForm>
         </el-card>
     </div>
 </template>
@@ -157,6 +157,10 @@ const updateSpu = (row: SpuDate) => {
     spu.value.initHasSpuData(row);
 };
 // 添加SKU按钮的回调
+const addSku = () => {
+    // 点击添加SKU按钮切换场景为2
+    scene.value = 2;
+};
 </script>
 
 <style scoped></style>
