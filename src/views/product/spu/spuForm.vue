@@ -165,7 +165,6 @@ import {
     SpuImg,
     Trademark,
 } from '@/api/product/spu/type';
-import { Flag } from '@element-plus/icons-vue/dist/types';
 import { ElMessage } from 'element-plus';
 import { computed } from 'vue';
 import { ref } from 'vue';
@@ -196,7 +195,7 @@ let dialogImageUrl = ref<string>('');
 // 将来收集还未选择的销售属性的ID与属性值的名字
 let saleAttrIdAndValueName = ref<string>('');
 const cancel = () => {
-    $emit('changeScene', { Flag: 0, params: 'update' });
+    $emit('changeScene', { flag: 0, params: 'update' });
 };
 // 子组件书写一个方法
 const initHasSpuData = async (spu: SpuDate) => {

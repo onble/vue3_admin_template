@@ -33,7 +33,7 @@
                                 size="small"
                                 icon="Plus"
                                 title="添加SKU"
-                                @click="addSku"
+                                @click="addSku(row)"
                             ></el-button>
                             <el-button
                                 @click="updateSpu(row)"
@@ -76,7 +76,11 @@
                 @changeScene="changeScene"
             ></SpuForm>
             <!-- 添加SKU的子组件 -->
-            <SkuForm v-show="scene == 2" @changeScene="changeScene"></SkuForm>
+            <SkuForm
+                ref="sku"
+                v-show="scene == 2"
+                @changeScene="changeScene"
+            ></SkuForm>
         </el-card>
     </div>
 </template>
@@ -89,6 +93,7 @@ import { ref, watch } from 'vue';
 import useCategoryStore from '@/store/modules/category';
 import { reqHasSpu } from '@/api/product/spu';
 import { HasSpuResponseData, Records, SpuDate } from '@/api/product/spu/type';
+import { onMounted } from 'vue';
 let categoryStore = useCategoryStore();
 // 场景的数据
 // 0:显示已有SPU 1:添加或者修改已有SPU 2:添加SKU的结构
@@ -103,6 +108,8 @@ let records = ref<Records>([]);
 let total = ref<number>(0);
 // 获取子组件实例SpuForm
 let spu = ref<any>();
+// 获取子组件实例SkuForm
+let sku = ref<any>();
 
 // 监听三级分类ID变化
 watch(
@@ -111,6 +118,11 @@ watch(
         getHasSpu();
     },
 );
+onMounted(() => {
+    if (categoryStore.c3Id != '') {
+        getHasSpu();
+    }
+});
 // 此方法执行：可以获取某一个三级分类下全部的已有的SPU
 const getHasSpu = async (pager = 1) => {
     // 修改当前页码
@@ -121,7 +133,7 @@ const getHasSpu = async (pager = 1) => {
         categoryStore.c3Id,
     );
     if (result.code == 200) {
-        records.value = result.data.records;
+        records.value = [...result.data.records];
         total.value = result.data.total;
     }
 };
@@ -157,9 +169,11 @@ const updateSpu = (row: SpuDate) => {
     spu.value.initHasSpuData(row);
 };
 // 添加SKU按钮的回调
-const addSku = () => {
+const addSku = (row: SpuDate) => {
     // 点击添加SKU按钮切换场景为2
     scene.value = 2;
+    // 调用子组件的方法初始化添加SKU的数据
+    sku.value.initSkuData(categoryStore.c1Id, categoryStore.c2Id, row);
 };
 </script>
 
