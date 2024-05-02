@@ -2,16 +2,31 @@
 <template>
     <el-form label-width="100px">
         <el-form-item label="SKU名称">
-            <el-input placeholder="SKU名称"></el-input>
+            <el-input
+                placeholder="SKU名称"
+                v-model="skuParams.skuName"
+            ></el-input>
         </el-form-item>
         <el-form-item label="价格(元)">
-            <el-input placeholder="价格(元)" type="number"></el-input>
+            <el-input
+                placeholder="价格(元)"
+                type="number"
+                v-model="skuParams.price"
+            ></el-input>
         </el-form-item>
         <el-form-item label="重量(g)">
-            <el-input placeholder="重量(g)" type="number"></el-input>
+            <el-input
+                placeholder="重量(g)"
+                type="number"
+                v-model="skuParams.weight"
+            ></el-input>
         </el-form-item>
         <el-form-item label="SKU描述">
-            <el-input placeholder="SKU描述" type="textarea"></el-input>
+            <el-input
+                placeholder="SKU描述"
+                type="textarea"
+                v-model="skuParams.skuDesc"
+            ></el-input>
         </el-form-item>
         <el-form-item label="平台属性">
             <el-form :inline="true">
@@ -80,7 +95,9 @@ let $emit = defineEmits(['changeScene']);
 // 引入请求API
 import { reqAttr } from '@/api/product/attr';
 import { reqSpuImageList, reqSpuHasSaleAttr } from '@/api/product/spu';
+import { reactive } from 'vue';
 import { ref } from 'vue';
+import type { SkuData } from '@/api/product/spu/type';
 // 取消按钮的回调
 const cancel = () => {
     $emit('changeScene', { flag: 0, params: '' });
@@ -91,12 +108,35 @@ let attrArr = ref<any>([]);
 let saleArr = ref<any>([]);
 // 照片的数据
 let imgArr = ref<any>([]);
+// 收集SKU的参数
+let skuParams = reactive<SkuData>({
+    // 父组件传递过来的数据
+    category3Id: '', // 三级分类的ID
+    spuId: '', // 已有的SPU的ID
+    tmId: '', // SPU品牌的ID
+    // v-model收集
+    skuName: '', // sku名字
+    price: '', // sku价格
+    weight: '', // sku重量
+    skuDesc: '', // sku的描述
+    skuAttrValueList: [
+        // 平台属性的收集
+    ],
+    skuSaleAttrValueList: [
+        // 销售属性
+    ],
+    skuDefaultImg: '', // sku图片地址
+});
 // 当前子组件的方法对外暴露
 const initSkuData = async (
     c1Id: number | string,
     c2Id: number | string,
     spu: any,
 ) => {
+    // 收集数据
+    skuParams.category3Id = spu.category3Id;
+    skuParams.spuId = spu.id;
+    skuParams.tmId = spu.tmId;
     // 获取平台属性
     const result: any = await reqAttr(c1Id, c2Id, spu.category3Id);
     // 获取对应的销售属性
