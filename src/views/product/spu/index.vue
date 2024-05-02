@@ -47,6 +47,7 @@
                                 size="small"
                                 icon="View"
                                 title="查看SKU列表"
+                                @click="findSku(row)"
                             ></el-button>
                             <el-button
                                 type="primary"
@@ -81,6 +82,31 @@
                 v-show="scene == 2"
                 @changeScene="changeScene"
             ></SkuForm>
+            <!-- dialog对话框：展示已有的SKU数据 -->
+            <el-dialog title="SKU列表" v-model="show">
+                <el-table border :data="skuArr">
+                    <el-table-column
+                        label="SKU名字"
+                        prop="skuName"
+                    ></el-table-column>
+                    <el-table-column
+                        label="SKU价格"
+                        prop="price"
+                    ></el-table-column>
+                    <el-table-column
+                        label="SKU重量"
+                        prop="weight"
+                    ></el-table-column>
+                    <el-table-column label="SKU图片">
+                        <template #="{ row, $index }">
+                            <img
+                                :src="row.skuDefaultImg"
+                                style="width: 100px; height: 100px"
+                            />
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </el-dialog>
         </el-card>
     </div>
 </template>
@@ -91,8 +117,14 @@ import SkuForm from './skuForm.vue';
 import { ref, watch } from 'vue';
 // 引入分类的仓库
 import useCategoryStore from '@/store/modules/category';
-import { reqHasSpu } from '@/api/product/spu';
-import { HasSpuResponseData, Records, SpuDate } from '@/api/product/spu/type';
+import { reqHasSpu, reqSkuList } from '@/api/product/spu';
+import {
+    HasSpuResponseData,
+    Records,
+    SpuDate,
+    SkuInfoData,
+    SkuData,
+} from '@/api/product/spu/type';
 import { onMounted } from 'vue';
 let categoryStore = useCategoryStore();
 // 场景的数据
@@ -110,7 +142,9 @@ let total = ref<number>(0);
 let spu = ref<any>();
 // 获取子组件实例SkuForm
 let sku = ref<any>();
-
+// 存储全部的SKU数据
+let skuArr = ref<SkuData[]>([]);
+let show = ref<boolean>(false);
 // 监听三级分类ID变化
 watch(
     () => categoryStore.c3Id,
@@ -174,6 +208,15 @@ const addSku = (row: SpuDate) => {
     scene.value = 2;
     // 调用子组件的方法初始化添加SKU的数据
     sku.value.initSkuData(categoryStore.c1Id, categoryStore.c2Id, row);
+};
+// 查看SKU列表的数据
+const findSku = async (row: SpuDate) => {
+    const result: SkuInfoData = await reqSkuList(row.id as number);
+    if (result.code == 200) {
+        skuArr.value = result.data;
+        // 对话框显示出来
+        show.value = true;
+    }
 };
 </script>
 
