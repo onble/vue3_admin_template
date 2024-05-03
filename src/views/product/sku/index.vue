@@ -55,11 +55,19 @@
                         icon="InfoFilled"
                         @click="findSku(row)"
                     ></el-button>
-                    <el-button
-                        type="primary"
-                        size="small"
-                        icon="Delete"
-                    ></el-button>
+                    <el-popconfirm
+                        :title="`你确定要删除${row.skuName}?`"
+                        width="200px"
+                        @confirm="removeSku(row.id)"
+                    >
+                        <template #reference>
+                            <el-button
+                                type="primary"
+                                size="small"
+                                icon="Delete"
+                            ></el-button>
+                        </template>
+                    </el-popconfirm>
                 </template>
             </el-table-column>
         </el-table>
@@ -149,6 +157,7 @@ import {
     reqSaleSku,
     reqCancelSale,
     reqSkuInfo,
+    reqRemoveSku,
 } from '@/api/product/sku';
 import { SkuResponseData } from '@/api/product/sku/type';
 import { SkuData, SkuInfoData } from '@/api/product/spu/type';
@@ -225,6 +234,23 @@ const findSku = async (row: SkuData) => {
     const result: SkuInfoData = await reqSkuInfo(row.id as number);
     // 存储已有的SKU
     skuInfo.value = result.data;
+};
+// 删除某一个已有的商品
+const removeSku = async (id: number) => {
+    // 删除某一个已有商品的情况
+    const result: any = await reqRemoveSku(id);
+    if (result.code == 200) {
+        // 提示信息
+        ElMessage({
+            type: 'success',
+            message: '删除成功',
+        });
+        // 获取已有全部商品
+        getHasSku(skuArr.value.length > 1 ? pageNo.value : pageNo.value - 1);
+    } else {
+        // 删除失败
+        ElMessage({ type: 'error', message: '系统数据不能删除' });
+    }
 };
 </script>
 
