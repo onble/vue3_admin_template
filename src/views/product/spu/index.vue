@@ -49,12 +49,20 @@
                                 title="查看SKU列表"
                                 @click="findSku(row)"
                             ></el-button>
-                            <el-button
-                                type="primary"
-                                size="small"
-                                icon="Delete"
-                                title="删除SPU"
-                            ></el-button>
+                            <el-popconfirm
+                                :title="`你确定${row.spuName}?`"
+                                width="200px"
+                                @confirm="deleteSpu(row)"
+                            >
+                                <template #reference>
+                                    <el-button
+                                        type="primary"
+                                        size="small"
+                                        icon="Delete"
+                                        title="删除SPU"
+                                    ></el-button>
+                                </template>
+                            </el-popconfirm>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -114,10 +122,10 @@
 <script setup lang="ts">
 import SpuForm from './spuForm.vue';
 import SkuForm from './skuForm.vue';
-import { ref, watch } from 'vue';
+import { ref, watch, onBeforeUnmount } from 'vue';
 // 引入分类的仓库
 import useCategoryStore from '@/store/modules/category';
-import { reqHasSpu, reqSkuList } from '@/api/product/spu';
+import { reqHasSpu, reqSkuList, reqRemoveSpu } from '@/api/product/spu';
 import {
     HasSpuResponseData,
     Records,
@@ -126,6 +134,7 @@ import {
     SkuData,
 } from '@/api/product/spu/type';
 import { onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
 let categoryStore = useCategoryStore();
 // 场景的数据
 // 0:显示已有SPU 1:添加或者修改已有SPU 2:添加SKU的结构
@@ -218,6 +227,28 @@ const findSku = async (row: SpuDate) => {
         show.value = true;
     }
 };
+// 删除已有的SPU按钮的回调
+const deleteSpu = async (row: SpuDate) => {
+    const result: any = await reqRemoveSpu(row.id as number);
+    if (result.code == 200) {
+        ElMessage({
+            type: 'succsee',
+            message: '删除成功',
+        });
+        // 获取剩余SPU数据
+        getHasSpu(records.value.length > 1 ? pageNo.value : pageNo.value - 1);
+    } else {
+        ElMessage({
+            type: 'error',
+            message: '删除失败',
+        });
+    }
+};
+
+// 路由组件销毁前，情况仓库关于分类的数据
+onBeforeUnmount(() => {
+    categoryStore.$reset();
+});
 </script>
 
 <style scoped></style>
