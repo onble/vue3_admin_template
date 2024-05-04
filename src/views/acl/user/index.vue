@@ -67,7 +67,12 @@
                 ></el-table-column>
                 <el-table-column label="操作" width="300px" align="center">
                     <template #="{ row, $index }">
-                        <el-button type="primary" size="small" icon="User">
+                        <el-button
+                            type="primary"
+                            size="small"
+                            icon="User"
+                            @click="setRole(row)"
+                        >
                             分配角色
                         </el-button>
                         <el-button
@@ -137,6 +142,52 @@
             </div>
         </template>
     </el-drawer>
+    <!-- 抽屉结构：用户某一个已有的账号进行职位分配 -->
+    <el-drawer v-model="drawer1">
+        <!-- 头部标题:将来文字内容应该动态的 -->
+        <template #header>
+            <h4>分配角色(职位)</h4>
+        </template>
+        <!-- 身体部分 -->
+        <template #default>
+            <el-form>
+                <el-form-item label="用户姓名">
+                    <el-input
+                        v-model="userParams.username"
+                        :disabled="true"
+                    ></el-input>
+                </el-form-item>
+                <el-form-item label="职位列表">
+                    <el-checkbox
+                        @change="handleCheckAllChange"
+                        v-model="checkAll"
+                        :indeterminate="isIndeterminate"
+                    >
+                        全选
+                    </el-checkbox>
+                    <!-- 显示职位的复选框 -->
+                    <el-checkbox-group
+                        v-model="userRole"
+                        @change="handleCheckedCitiesChange"
+                    >
+                        <el-checkbox
+                            v-for="(role, index) in allRole"
+                            :key="index"
+                            :label="role"
+                        >
+                            {{ role }}
+                        </el-checkbox>
+                    </el-checkbox-group>
+                </el-form-item>
+            </el-form>
+        </template>
+        <template #footer>
+            <div style="flex: auto">
+                <el-button @click="cancel">取消</el-button>
+                <el-button type="primary" @click="save">确定</el-button>
+            </div>
+        </template>
+    </el-drawer>
 </template>
 
 <script setup lang="ts">
@@ -157,6 +208,8 @@ let total = ref<number>(0);
 let userArr = ref<Records>([]);
 // 定义响应式数据控制抽屉的显示与隐藏
 let drawer = ref<boolean>(false);
+// 控制分配角色抽屉显示与隐藏
+let drawer1 = ref<boolean>(false);
 // 收集用户信息的响应式数据
 let userParams = reactive<User>({
     username: '',
@@ -234,7 +287,7 @@ const save = async () => {
             message: userParams.id ? '更新成功' : '添加成功',
         });
         // 获取最新的全部账号的信息
-        getHasUser(userParams.id ? pageNo.value : 1);
+        // getHasUser(userParams.id ? pageNo.value : 1);
         // 浏览器自动刷新一次
         window.location.reload();
     } else {
@@ -289,6 +342,34 @@ const rules = {
     password: [
         { required: true, trigger: 'blur', validator: validatorPassword },
     ],
+};
+// 分配角色按钮的回调
+const setRole = (row: User) => {
+    // 抽屉显示出来
+    drawer1.value = true;
+    // 存储已有的用户信息
+    Object.assign(userParams, row);
+};
+// 测试复选框代码
+// 全选复选框收集数据:是否全选
+let checkAll = ref<boolean>(false);
+let allRole = ref(['销售', '前台', '财务', 'boss']);
+let userRole = ref(['销售', '前天']);
+// 设置不确定状态，仅复杂样式控制
+const isIndeterminate = ref<boolean>(true);
+// 全选复选框的change事件
+const handleCheckAllChange = (val: boolean) => {
+    userRole.value = val ? allRole.value : [];
+    isIndeterminate.value = false;
+};
+// 底部的复选框change事件
+const handleCheckedCitiesChange = (value: string[]) => {
+    // 已经勾选的这些项目的长度
+    // TODO:你就是我的心，我的肝，我的甜蜜饯.
+    const checkedCount = value.length;
+    checkAll.value = checkedCount === allRole.value.length;
+    // 顶部的复选框不确定样式
+    isIndeterminate.value = !(checkedCount === allRole.value.length);
 };
 </script>
 
