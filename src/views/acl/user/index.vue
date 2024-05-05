@@ -18,9 +18,21 @@
             <el-button type="primary" size="default" @click="addUser">
                 添加用户
             </el-button>
-            <el-button type="primary" size="default">批量删除</el-button>
+            <el-button
+                type="primary"
+                size="default"
+                :disabled="selectIdArr.length ? false : true"
+                @click="deleteSelectUser"
+            >
+                批量删除
+            </el-button>
             <!-- table展示用户信息 -->
-            <el-table style="margin: 10px 0px" border :data="userArr">
+            <el-table
+                @selection-change="selectChange"
+                style="margin: 10px 0px"
+                border
+                :data="userArr"
+            >
                 <el-table-column
                     type="selection"
                     align="center"
@@ -83,9 +95,21 @@
                         >
                             编辑
                         </el-button>
-                        <el-button type="primary" size="small" icon="Delete">
-                            删除
-                        </el-button>
+                        <el-popconfirm
+                            :title="`你确定要删除${row.username}`"
+                            width="260px"
+                            @confirm="deleteUser(row.id)"
+                        >
+                            <template #reference>
+                                <el-button
+                                    type="primary"
+                                    size="small"
+                                    icon="Delete"
+                                >
+                                    删除
+                                </el-button>
+                            </template>
+                        </el-popconfirm>
                     </template>
                 </el-table-column>
             </el-table>
@@ -196,6 +220,8 @@ import {
     reqAddOrUpdateUser,
     reqALLRole,
     reqSetUserRole,
+    reqRemoveUser,
+    reqSelectUser,
 } from '@/api/acl/user';
 import {
     UserResponseData,
@@ -232,6 +258,8 @@ let userParams = reactive<User>({
     name: '',
     password: '',
 });
+// 准备一个数组存储批量删除的用户的ID
+let selectIdArr = ref<User[]>([]);
 // 获取form组件实例
 let formRef = ref<any>();
 // 逐渐挂载完毕
@@ -375,6 +403,14 @@ const setRole = async (row: User) => {
         userRole.value = result.data.assignRoles;
         // 抽屉显示出来
         drawer1.value = true;
+        // 更新全选状态
+        checkAll.value = userRole.value.length === allRole.value.length;
+        // 不确定的样式
+        isIndeterminate.value = userRole.value.length !== allRole.value.length;
+        if (userRole.value.length == 0) {
+            isIndeterminate.value = false;
+            checkAll.value = false;
+        }
     }
 };
 // 收集顶部复选框全选数据
@@ -395,6 +431,10 @@ const handleCheckedCitiesChange = (value: string[]) => {
     checkAll.value = value.length === allRole.value.length;
     // 不确定的样式
     isIndeterminate.value = value.length !== allRole.value.length;
+    if (value.length == 0) {
+        isIndeterminate.value = false;
+        checkAll.value = false;
+    }
 };
 // 确定按钮的回调(分配职位)
 const confrimClick = async () => {
@@ -413,6 +453,37 @@ const confrimClick = async () => {
         drawer1.value = false;
         // 获取更新完毕用户的信息
         getHasUser(pageNo.value);
+    }
+};
+// 删除某一个用户
+const deleteUser = async (userId: number) => {
+    const result: any = await reqRemoveUser(userId);
+    if (result.code == 200) {
+        ElMessage({
+            type: 'success',
+            message: '删除成功',
+        });
+        getHasUser(userArr.value.length > 1 ? pageNo.value : pageNo.value - 1);
+    }
+};
+// tabel复选框勾选的时候会触发的事件
+const selectChange = (value: any) => {
+    selectIdArr.value = value;
+};
+// 批量删除按钮的回调
+const deleteSelectUser = async () => {
+    // 整理批量删除的参数
+    let idsList: any = selectIdArr.value.map((item) => {
+        return item.id;
+    });
+    // 批量删除的请求
+    const result: any = await reqSelectUser(idsList);
+    if (result.code == 200) {
+        ElMessage({
+            type: 'success',
+            message: '批量删除成功',
+        });
+        getHasUser(userArr.value.length > 1 ? pageNo.value : pageNo.value - 1);
     }
 };
 </script>
