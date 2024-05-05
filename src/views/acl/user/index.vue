@@ -175,7 +175,7 @@
                             :key="index"
                             :label="role"
                         >
-                            {{ role }}
+                            {{ role.roleName }}
                         </el-checkbox>
                     </el-checkbox-group>
                 </el-form-item>
@@ -191,8 +191,14 @@
 </template>
 
 <script setup lang="ts">
-import { reqUserInfo, reqAddOrUpdateUser } from '@/api/acl/user';
-import { UserResponseData, Records, User } from '@/api/acl/user/type';
+import { reqUserInfo, reqAddOrUpdateUser, reqALLRole } from '@/api/acl/user';
+import {
+    UserResponseData,
+    Records,
+    User,
+    AllRoleResponseData,
+    AllRole,
+} from '@/api/acl/user/type';
 import { ElMessage } from 'element-plus';
 import { reactive } from 'vue';
 import { nextTick } from 'vue';
@@ -210,6 +216,10 @@ let userArr = ref<Records>([]);
 let drawer = ref<boolean>(false);
 // 控制分配角色抽屉显示与隐藏
 let drawer1 = ref<boolean>(false);
+// 存储全部职位的数据
+let allRole = ref<AllRole>([]);
+// 当前用户已有的职位
+let userRole = ref<AllRole>([]);
 // 收集用户信息的响应式数据
 let userParams = reactive<User>({
     username: '',
@@ -344,32 +354,42 @@ const rules = {
     ],
 };
 // 分配角色按钮的回调
-const setRole = (row: User) => {
+const setRole = async (row: User) => {
     // 抽屉显示出来
-    drawer1.value = true;
+    // drawer1.value = true;
     // 存储已有的用户信息
     Object.assign(userParams, row);
+    // 获取全部的职位的数据与当前用户已有的职位的数据
+    const result: AllRoleResponseData = await reqALLRole(
+        userParams.id as number,
+    );
+    if (result.code == 200) {
+        // 存储全部的职位
+        allRole.value = result.data.allRolesList;
+        // 存储当前用户已有的职位
+        userRole.value = result.data.assignRoles;
+        // 抽屉显示出来
+        drawer1.value = true;
+    }
 };
-// 测试复选框代码
-// 全选复选框收集数据:是否全选
-let checkAll = ref<boolean>(false);
-let allRole = ref(['销售', '前台', '财务', 'boss']);
-let userRole = ref(['销售', '前天']);
-// 设置不确定状态，仅复杂样式控制
+// 收集顶部复选框全选数据
+const checkAll = ref<boolean>(false);
+// 控制顶部全选复选框不确定的样式
 const isIndeterminate = ref<boolean>(true);
-// 全选复选框的change事件
+// 顶部的全部复选框的change事件
 const handleCheckAllChange = (val: boolean) => {
+    // val:true(全选)|false(没有全选)
     userRole.value = val ? allRole.value : [];
+    // 不确定的样式(确定样式)
     isIndeterminate.value = false;
 };
-// 底部的复选框change事件
+// 顶部全部的复选框的change事件
 const handleCheckedCitiesChange = (value: string[]) => {
-    // 已经勾选的这些项目的长度
-    // TODO:你就是我的心，我的肝，我的甜蜜饯.
-    const checkedCount = value.length;
-    checkAll.value = checkedCount === allRole.value.length;
-    // 顶部的复选框不确定样式
-    isIndeterminate.value = !(checkedCount === allRole.value.length);
+    // 顶部复选框的勾选数据
+    // 代表：勾选上的项目个数与全部的职位个数相等，顶部的复选框勾上
+    checkAll.value = value.length === allRole.value.length;
+    // 不确定的样式
+    isIndeterminate.value = value.length !== allRole.value.length;
 };
 </script>
 
