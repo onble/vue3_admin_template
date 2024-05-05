@@ -183,21 +183,27 @@
         </template>
         <template #footer>
             <div style="flex: auto">
-                <el-button @click="cancel">取消</el-button>
-                <el-button type="primary" @click="save">确定</el-button>
+                <el-button @click="drawer1 = false">取消</el-button>
+                <el-button type="primary" @click="confrimClick">确定</el-button>
             </div>
         </template>
     </el-drawer>
 </template>
 
 <script setup lang="ts">
-import { reqUserInfo, reqAddOrUpdateUser, reqALLRole } from '@/api/acl/user';
+import {
+    reqUserInfo,
+    reqAddOrUpdateUser,
+    reqALLRole,
+    reqSetUserRole,
+} from '@/api/acl/user';
 import {
     UserResponseData,
     Records,
     User,
     AllRoleResponseData,
     AllRole,
+    SetRoleData,
 } from '@/api/acl/user/type';
 import { ElMessage } from 'element-plus';
 import { reactive } from 'vue';
@@ -240,7 +246,6 @@ const getHasUser = async (pager = 1) => {
         pageNo.value,
         pageSize.value,
     );
-    console.log(result);
     if (result.code == 200) {
         total.value = result.data.total;
         userArr.value = result.data.records;
@@ -390,6 +395,25 @@ const handleCheckedCitiesChange = (value: string[]) => {
     checkAll.value = value.length === allRole.value.length;
     // 不确定的样式
     isIndeterminate.value = value.length !== allRole.value.length;
+};
+// 确定按钮的回调(分配职位)
+const confrimClick = async () => {
+    // 收集参数
+    let data: SetRoleData = {
+        userId: userParams.id as number,
+        roleIdList: userRole.value.map((item) => {
+            return item.id as number;
+        }),
+    };
+    const result: any = await reqSetUserRole(data);
+    if (result.code == 200) {
+        // 提示信息
+        ElMessage({ type: 'success', message: '分配职务成功' });
+        // 关闭抽屉
+        drawer1.value = false;
+        // 获取更新完毕用户的信息
+        getHasUser(pageNo.value);
+    }
 };
 </script>
 
