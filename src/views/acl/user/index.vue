@@ -4,11 +4,23 @@
         <div>
             <el-form :inline="true" class="form">
                 <el-form-item label="用户名:">
-                    <el-input placeholder="请你输入搜索用户名"></el-input>
+                    <el-input
+                        placeholder="请你输入搜索用户名"
+                        v-model="keyword"
+                    ></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" size="default">搜索</el-button>
-                    <el-button type="primary" size="default">重置</el-button>
+                    <el-button
+                        type="primary"
+                        size="default"
+                        :disabled="keyword ? false : true"
+                        @click="search"
+                    >
+                        搜索
+                    </el-button>
+                    <el-button type="primary" size="default" @click="reset">
+                        重置
+                    </el-button>
                 </el-form-item>
             </el-form>
         </div>
@@ -231,6 +243,7 @@ import {
     AllRole,
     SetRoleData,
 } from '@/api/acl/user/type';
+import useLayoutSettingStore from '@/store/modules/setting';
 import { ElMessage } from 'element-plus';
 import { reactive } from 'vue';
 import { nextTick } from 'vue';
@@ -262,7 +275,9 @@ let userParams = reactive<User>({
 let selectIdArr = ref<User[]>([]);
 // 获取form组件实例
 let formRef = ref<any>();
-// 逐渐挂载完毕
+// 获取模板setting仓库
+let settingStore = useLayoutSettingStore();
+// 组件挂载完毕
 onMounted(() => {
     getHasUser();
 });
@@ -273,6 +288,7 @@ const getHasUser = async (pager = 1) => {
     const result: UserResponseData = await reqUserInfo(
         pageNo.value,
         pageSize.value,
+        keyword.value,
     );
     if (result.code == 200) {
         total.value = result.data.total;
@@ -417,6 +433,8 @@ const setRole = async (row: User) => {
 const checkAll = ref<boolean>(false);
 // 控制顶部全选复选框不确定的样式
 const isIndeterminate = ref<boolean>(true);
+// 定义响应式数据：收集用户输入进来的关键字
+let keyword = ref<string>('');
 // 顶部的全部复选框的change事件
 const handleCheckAllChange = (val: boolean) => {
     // val:true(全选)|false(没有全选)
@@ -485,6 +503,17 @@ const deleteSelectUser = async () => {
         });
         getHasUser(userArr.value.length > 1 ? pageNo.value : pageNo.value - 1);
     }
+};
+// 搜索按钮的回调
+const search = () => {
+    // 根据关键字获取相应的用户数据
+    getHasUser();
+    // 清空关键字
+    keyword.value = '';
+};
+// 重置按钮
+const reset = () => {
+    settingStore.refsh = !settingStore.refsh;
 };
 </script>
 
