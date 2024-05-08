@@ -5,7 +5,7 @@ export interface ResponseData {
     ok: boolean;
 }
 // 菜单数据与按钮数据的ts类型
-export interface permission {
+export interface Permisstion {
     id?: number;
     createTime: string;
     updateTime: string;
