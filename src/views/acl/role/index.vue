@@ -120,19 +120,20 @@
         <template #default>
             <!-- 树形控件 -->
             <el-tree
+                ref="tree"
                 style="max-width: 600px"
                 :data="menuArr"
                 show-checkbox
                 node-key="id"
                 default-expand-all
-                :default-checked-keys="[5]"
+                :default-checked-keys="selectArr"
                 :props="defaultProps"
             />
         </template>
         <template #footer>
             <div style="flex: auto">
                 <el-button @click="drawer = false">取消</el-button>
-                <el-button type="primary">确定</el-button>
+                <el-button type="primary" @click="handler">确定</el-button>
             </div>
         </template>
     </el-drawer>
@@ -145,6 +146,7 @@ import {
     reqAddOrUpdateRole,
     reqAllMenuList,
     reqAllRoleList,
+    reqSetPermisstion,
 } from '@/api/acl/role';
 import type {
     RoleResponseData,
@@ -181,7 +183,10 @@ let form = ref<any>();
 let drawer = ref<boolean>(false);
 // 定义数组存储用户权限的数据
 let menuArr = ref<MenuList>([]);
-// 组件挂载完毕
+// 准备一个数组：数组用于存储勾选的节点的ID(四级的)
+let selectArr = ref<number[]>([]);
+// 获取tree组件实例
+let tree = ref<any>();
 onMounted(() => {
     getHasRole();
 });
@@ -283,7 +288,9 @@ const setPermisstion = async (row: RoleData) => {
         RoleParams.id as number,
     );
     if (result.code == 200) {
-        menuArr.value == result.data;
+        menuArr.value = result.data;
+        selectArr.value = filterSelectArr(menuArr.value, []);
+        console.log(selectArr.value);
     }
 };
 
@@ -291,6 +298,37 @@ const setPermisstion = async (row: RoleData) => {
 const defaultProps = {
     children: 'children',
     label: 'name',
+};
+const filterSelectArr = (allData: any, initArr: any) => {
+    allData.forEach((item: any) => {
+        if (item.select && item.level == 4) {
+            initArr.push(item.id);
+        }
+        if (item.children && item.children.length > 0) {
+            filterSelectArr(item.children, initArr);
+        }
+    });
+    return initArr;
+};
+// 抽屉确定按钮的回调
+const handler = async () => {
+    // 职位的ID
+    const roleId = RoleParams.id as number;
+    // 选中节点的ID
+    let arr = tree.value.getCheckedKeys();
+    // 半选的ID
+    let arr1 = tree.value.getHalfCheckedKeys();
+    let permissionId = arr.concat(arr1);
+    // 下发权限
+    let result: any = await reqSetPermisstion(roleId, permissionId);
+    if (result.code == 200) {
+        // 抽屉关闭
+        drawer.value = false;
+        // 提示信息
+        ElMessage({ type: 'success', message: '分配权限成功' });
+        // 页面刷新
+        window.location.reload();
+    }
 };
 </script>
 
