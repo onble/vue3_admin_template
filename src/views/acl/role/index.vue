@@ -51,7 +51,12 @@
             <el-table-column label="操作" align="center" width="280px">
                 <!-- row:已有的职位对象 -->
                 <template #="{ row, $index }">
-                    <el-button type="primary" size="small" icon="User">
+                    <el-button
+                        type="primary"
+                        size="small"
+                        icon="User"
+                        @click="setPermisstion(row)"
+                    >
                         分配权限
                     </el-button>
                     <el-button
@@ -107,13 +112,47 @@
             </span>
         </template>
     </el-dialog>
+    <!-- 抽屉组件：分配职位的菜单权限与按钮的权限 -->
+    <el-drawer v-model="drawer">
+        <template #header>
+            <h4>分配菜单与按钮的权限</h4>
+        </template>
+        <template #default>
+            <!-- 树形控件 -->
+            <el-tree
+                style="max-width: 600px"
+                :data="menuArr"
+                show-checkbox
+                node-key="id"
+                default-expand-all
+                :default-checked-keys="[5]"
+                :props="defaultProps"
+            />
+        </template>
+        <template #footer>
+            <div style="flex: auto">
+                <el-button @click="drawer = false">取消</el-button>
+                <el-button type="primary">确定</el-button>
+            </div>
+        </template>
+    </el-drawer>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 // 请求方法
-import { reqAddOrUpdateRole, reqAllRoleList } from '@/api/acl/role';
-import type { RoleResponseData, Records, RoleData } from '@/api/acl/role/type';
+import {
+    reqAddOrUpdateRole,
+    reqAllMenuList,
+    reqAllRoleList,
+} from '@/api/acl/role';
+import type {
+    RoleResponseData,
+    Records,
+    RoleData,
+    MenuResponseData,
+    MenuList,
+} from '@/api/acl/role/type';
 // 引入骨架的仓库
 import userLayOutSettingStore from '@/store/modules/setting';
 import { reactive } from 'vue';
@@ -138,6 +177,10 @@ let RoleParams = reactive<RoleData>({
 });
 // 获取form组件实例
 let form = ref<any>();
+// 控制抽屉显示与隐藏
+let drawer = ref<boolean>(false);
+// 定义数组存储用户权限的数据
+let menuArr = ref<MenuList>([]);
 // 组件挂载完毕
 onMounted(() => {
     getHasRole();
@@ -227,6 +270,27 @@ const save = async () => {
         // 再次获取全部的已有的职位
         getHasRole(RoleParams.id ? pageNo.value : 1);
     }
+};
+// 分配权限按钮的回调
+const setPermisstion = async (row: RoleData) => {
+    // row:已有的职位的数据
+    // 抽屉显示出来
+    drawer.value = true;
+    // 收集当前要分类权限的职位的数据
+    Object.assign(RoleParams, row);
+    // 根据职位获取权限的数据
+    const result: MenuResponseData = await reqAllMenuList(
+        RoleParams.id as number,
+    );
+    if (result.code == 200) {
+        menuArr.value == result.data;
+    }
+};
+
+// 树形控件测试的数据
+const defaultProps = {
+    children: 'children',
+    label: 'name',
 };
 </script>
 
