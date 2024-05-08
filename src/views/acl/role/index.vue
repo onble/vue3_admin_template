@@ -67,9 +67,21 @@
                     >
                         编辑
                     </el-button>
-                    <el-button type="primary" size="small" icon="Delete">
-                        删除
-                    </el-button>
+                    <el-popconfirm
+                        :title="`你确定要删除${row.roleName}?`"
+                        width="260px"
+                        @confirm="removeRole(row.id)"
+                    >
+                        <template #reference>
+                            <el-button
+                                type="primary"
+                                size="small"
+                                icon="Delete"
+                            >
+                                删除
+                            </el-button>
+                        </template>
+                    </el-popconfirm>
                 </template>
             </el-table-column>
         </el-table>
@@ -146,6 +158,7 @@ import {
     reqAddOrUpdateRole,
     reqAllMenuList,
     reqAllRoleList,
+    reqRemoveRole,
     reqSetPermisstion,
 } from '@/api/acl/role';
 import type {
@@ -328,6 +341,15 @@ const handler = async () => {
         ElMessage({ type: 'success', message: '分配权限成功' });
         // 页面刷新
         window.location.reload();
+    }
+};
+// 删除已有的职位
+const removeRole = async (id: number) => {
+    const result: any = await reqRemoveRole(id);
+    if (result.code == 200) {
+        // 提示信息
+        ElMessage({ type: 'success', message: '删除成功' });
+        getHasRole(allRole.value.length > 1 ? pageNo.value : pageNo.value - 1);
     }
 };
 </script>
