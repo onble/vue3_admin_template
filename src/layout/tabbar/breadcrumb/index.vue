@@ -15,7 +15,7 @@
             :to="item.path"
         >
             <!-- 图标 -->
-            <el-icon>
+            <el-icon v-if="item.meta.icon">
                 <component :is="item.meta.icon"></component>
             </el-icon>
             <!-- 面包屑展示匹配路由的标题 -->

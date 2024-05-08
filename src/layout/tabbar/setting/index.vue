@@ -11,11 +11,12 @@
         circle
         @click="fullScreen"
     ></el-button>
-    <el-popover placement="bottom" title="主题设置" width="300" trigger="hover">
+    <el-popover placement="bottom" title="主题设置" width="300" trigger="click">
         <!-- 表单元素 -->
         <el-form>
             <el-form-item label="主题颜色">
                 <el-color-picker
+                    @change="setColor"
                     v-model="color"
                     show-alpha
                     :predefine="predefineColors"
@@ -104,7 +105,7 @@ const logout = async () => {
 };
 // 颜色组件需要的数据
 
-const color = ref('rgba(255, 69, 0, 0.68)');
+let color = ref('rgba(255, 69, 0, 0.68)');
 const predefineColors = ref([
     '#ff4500',
     '#ff8c00',
@@ -127,6 +128,13 @@ const changeDark = () => {
     let html = document.documentElement;
     // 判断HTML标签是否有类名dark
     dark.value ? (html.className = 'dark') : (html.className = '');
+};
+// 主题颜色的设置
+const setColor = (event) => {
+    event.stopPropagation();
+    // 通知js修改根节点的样式对象的属性与属性值
+    let html = document.documentElement;
+    html.style.setProperty('--el-color-primary', color.value);
 };
 </script>
 
