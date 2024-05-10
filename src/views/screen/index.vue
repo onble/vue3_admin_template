@@ -26,9 +26,11 @@ import Tourist from './components/tourist/index.vue';
 import Sex from './components/sex/index.vue';
 import Age from './components/age/index.vue';
 // 获取数据大屏展示内容盒子的DOM元素
-let screen = ref();
+let screen = ref<HTMLElement | null>(null);
 onMounted(() => {
-    screen.value.style.transform = `scale(${getScale()}) translate(-50%,-50%)`;
+    if (screen.value) {
+        screen.value.style.transform = `scale(${getScale()}) translate(-50%,-50%)`;
+    }
 });
 // 定义大屏缩放比例
 function getScale(w = 1920, h = 1080) {
@@ -38,7 +40,9 @@ function getScale(w = 1920, h = 1080) {
 }
 // 监听视口变化
 window.onresize = () => {
-    screen.value.style.transform = `scale(${getScale()}) translate(-50%,-50%)`;
+    if (screen.value) {
+        screen.value.style.transform = `scale(${getScale()}) translate(-50%,-50%)`;
+    }
 };
 </script>
 
